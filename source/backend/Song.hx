@@ -21,6 +21,10 @@ typedef SwagSong =
 	var stage:String;
 	var format:String;
 
+	@:optional var mania:Int;
+	@:optional var player3:String;
+	@:optional var player4:String;
+
 	@:optional var gameOverChar:String;
 	@:optional var gameOverSound:String;
 	@:optional var gameOverLoop:String;
@@ -61,7 +65,10 @@ class Song
 	public var stage:String;
 	public var player1:String = 'bf';
 	public var player2:String = 'dad';
+	public var player3:String = null;
+	public var player4:String = null;
 	public var gfVersion:String = 'gf';
+	public var mania:Int = 0;
 	public var format:String = 'psych_v1';
 
 	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format

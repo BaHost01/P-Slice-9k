@@ -222,6 +222,60 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var waveformEnabled:Bool = false;
 	var waveformTarget:WaveformTarget = INST;
 
+	function generateEditorStrums()
+	{
+		strumLineNotes.clear();
+		var startX:Float = gridBg.x;
+		var startY:Float = FlxG.height/2;
+		if(SHOW_EVENT_COLUMN) startX += GRID_SIZE;
+
+		for (i in 0...Std.int(GRID_PLAYERS * GRID_COLUMNS_PER_PLAYER))
+		{
+			var note:StrumNote = new StrumNote(startX + (GRID_SIZE * i), startY, i % GRID_COLUMNS_PER_PLAYER, 0);
+			note.scrollFactor.set();
+			note.playAnim('static');
+			note.alpha = 0.4;
+			note.updateHitbox();
+			if(note.width > note.height)
+				note.setGraphicSize(GRID_SIZE);
+			else
+				note.setGraphicSize(0, GRID_SIZE);
+	
+			note.updateHitbox();
+			note.x += GRID_SIZE/2 - note.width/2;
+			note.y += GRID_SIZE/2 - note.height/2;
+			strumLineNotes.add(note);
+		}
+	}
+
+	function repositionHeads()
+	{
+		var columns:Int = 0;
+		var iconX:Float = gridBg.x;
+		var iconY:Float = 50;
+		if(SHOW_EVENT_COLUMN)
+		{
+			if(eventIcon != null) eventIcon.x = iconX + (GRID_SIZE * 0.5) - eventIcon.width/2;
+			iconX += GRID_SIZE;
+			columns++;
+		}
+
+		var gridStripes:Array<Int> = [];
+		for (i in 0...GRID_PLAYERS)
+		{
+			if(columns > 0) gridStripes.push(columns);
+			columns += GRID_COLUMNS_PER_PLAYER;
+
+			var icon:HealthIcon = icons[i];
+			if(icon != null)
+			{
+				icon.x = iconX + GRID_SIZE * (GRID_COLUMNS_PER_PLAYER/2) - icon.width/2;
+			}
+			iconX += GRID_SIZE * GRID_COLUMNS_PER_PLAYER;
+		}
+		if(prevGridBg != null) prevGridBg.stripes = nextGridBg.stripes = gridBg.stripes = gridStripes;
+	}
+
 	override function create()
 	{
 		if(Difficulty.list.length < 1) Difficulty.resetList();
@@ -308,28 +362,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		timeLine.scrollFactor.set();
 		add(timeLine);
 		
-		var startX:Float = gridBg.x;
-		var startY:Float = FlxG.height/2;
 		vortexIndicator.visible = strumLineNotes.visible = strumLineNotes.active = vortexEnabled;
-		if(SHOW_EVENT_COLUMN) startX += GRID_SIZE;
-
-		for (i in 0...Std.int(GRID_PLAYERS * GRID_COLUMNS_PER_PLAYER))
-		{
-			var note:StrumNote = new StrumNote(startX + (GRID_SIZE * i), startY, i % GRID_COLUMNS_PER_PLAYER, 0);
-			note.scrollFactor.set();
-			note.playAnim('static');
-			note.alpha = 0.4;
-			note.updateHitbox();
-			if(note.width > note.height)
-				note.setGraphicSize(GRID_SIZE);
-			else
-				note.setGraphicSize(0, GRID_SIZE);
-	
-			note.updateHitbox();
-			note.x += GRID_SIZE/2 - note.width/2;
-			note.y += GRID_SIZE/2 - note.height/2;
-			strumLineNotes.add(note);
-		}
+		generateEditorStrums();
 
 		var columns:Int = 0;
 		var iconX:Float = gridBg.x;
@@ -355,12 +389,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		mustHitIndicator.offset.x += mustHitIndicator.width/2;
 		add(mustHitIndicator);
 
-		var gridStripes:Array<Int> = [];
 		for (i in 0...GRID_PLAYERS)
 		{
-			if(columns > 0) gridStripes.push(columns);
-			columns += GRID_COLUMNS_PER_PLAYER;
-
 			var icon:HealthIcon = new HealthIcon();
 			icon.autoAdjustOffset = false;
 			icon.y = iconY;
@@ -371,11 +401,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			icon.ID = i+1;
 			add(icon);
 			icons.push(icon);
-			
-			icon.x = iconX + GRID_SIZE * (GRID_COLUMNS_PER_PLAYER/2) - icon.width/2;
-			iconX += GRID_SIZE * GRID_COLUMNS_PER_PLAYER;
 		}
-		prevGridBg.stripes = nextGridBg.stripes = gridBg.stripes = gridStripes;
+		repositionHeads();
 		
 		selectionBox = new FlxSprite().makeGraphic(1, 1, FlxColor.CYAN);
 		selectionBox.alpha = 0.4;
@@ -477,6 +504,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		var characterList:Array<String> = gameOverCharacters.filter((name:String) -> (!name.endsWith('-dead') && !name.endsWith('-death')));
 		playerDropDown.list = characterList;
 		opponentDropDown.list = characterList;
+		player3DropDown.list = characterList;
+		player4DropDown.list = characterList;
 		girlfriendDropDown.list = characterList;
 
 		gameOverCharacters.insert(0, '');
@@ -679,6 +708,14 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		playerDropDown.selectedLabel = PlayState.SONG.player1;
 		opponentDropDown.selectedLabel = PlayState.SONG.player2;
 		girlfriendDropDown.selectedLabel = PlayState.SONG.gfVersion;
+		player3DropDown.selectedLabel = PlayState.SONG.player3 ?? 'None';
+		player4DropDown.selectedLabel = PlayState.SONG.player4 ?? 'None';
+		maniaStepper.value = PlayState.SONG.mania;
+		
+		GRID_COLUMNS_PER_PLAYER = 4;
+		if (PlayState.SONG.mania == 1) GRID_COLUMNS_PER_PLAYER = 6;
+		else if (PlayState.SONG.mania == 2) GRID_COLUMNS_PER_PLAYER = 9;
+		repositionHeads();
 		stageDropDown.selectedLabel = PlayState.SONG.stage;
 		StageData.loadDirectory(PlayState.SONG);
 
@@ -3537,7 +3574,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var stageDropDown:PsychUIDropDownMenu;
 	var playerDropDown:PsychUIDropDownMenu;
 	var opponentDropDown:PsychUIDropDownMenu;
+	var player3DropDown:PsychUIDropDownMenu;
+	var player4DropDown:PsychUIDropDownMenu;
 	var girlfriendDropDown:PsychUIDropDownMenu;
+	var maniaStepper:PsychUINumericStepper;
 	
 	function addSongTab()
 	{
@@ -3651,7 +3691,32 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			PlayState.SONG.gfVersion = character;
 			trace('selected $character');
 		});
-		
+
+		player3DropDown = new PsychUIDropDownMenu(objX + 140, objY, [''], function(id:Int, character:String)
+		{
+			PlayState.SONG.player3 = (character == '' || character == 'None') ? null : character;
+			trace('selected player3 $character');
+		});
+
+		player4DropDown = new PsychUIDropDownMenu(objX + 140, objY + 40, [''], function(id:Int, character:String)
+		{
+			PlayState.SONG.player4 = (character == '' || character == 'None') ? null : character;
+			trace('selected player4 $character');
+		});
+
+		maniaStepper = new PsychUINumericStepper(objX + 140, objY + 80, 1, 0, 0, 2, 0);
+		maniaStepper.onChange = function() {
+			PlayState.SONG.mania = Std.int(maniaStepper.value);
+			updateJsonData();
+			GRID_COLUMNS_PER_PLAYER = 4;
+			if (PlayState.SONG.mania == 1) GRID_COLUMNS_PER_PLAYER = 6;
+			else if (PlayState.SONG.mania == 2) GRID_COLUMNS_PER_PLAYER = 9;
+			createGrids();
+			generateEditorStrums();
+			repositionHeads();
+			reloadNotes(); // Refresh grid
+		};
+
 		tab_group.add(new FlxText(bpmStepper.x, bpmStepper.y - 15, 50, 'BPM:'));
 		tab_group.add(new FlxText(scrollSpeedStepper.x, scrollSpeedStepper.y - 15, 80, 'Scroll Speed:'));
 		tab_group.add(new FlxText(audioOffsetStepper.x, audioOffsetStepper.y - 15, 100, 'Audio Offset (ms):'));
@@ -3664,12 +3729,17 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		tab_group.add(new FlxText(playerDropDown.x, playerDropDown.y - 15, 80, 'Player:'));
 		tab_group.add(new FlxText(opponentDropDown.x, opponentDropDown.y - 15, 80, 'Opponent:'));
 		tab_group.add(new FlxText(girlfriendDropDown.x, girlfriendDropDown.y - 15, 80, 'Girlfriend:'));
+		tab_group.add(new FlxText(player3DropDown.x, player3DropDown.y - 15, 80, 'Player 2:'));
+		tab_group.add(new FlxText(player4DropDown.x, player4DropDown.y - 15, 80, 'Opponent 2:'));
+		tab_group.add(new FlxText(maniaStepper.x, maniaStepper.y - 15, 80, 'Mania:'));
 		tab_group.add(stageDropDown);
 		tab_group.add(girlfriendDropDown);
 		tab_group.add(opponentDropDown);
 		tab_group.add(playerDropDown);
-	}
-
+		tab_group.add(player3DropDown);
+		tab_group.add(player4DropDown);
+		tab_group.add(maniaStepper);
+		}
 	var ratingInput:PsychUINumericStepper;
 	var prevStartInput:PsychUINumericStepper;
 	var prevEndInput:PsychUINumericStepper;

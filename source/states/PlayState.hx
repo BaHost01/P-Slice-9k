@@ -139,6 +139,8 @@ class PlayState extends MusicBeatState
 	public var dad:Character = null;
 	public var gf:Character = null;
 	public var boyfriend:Character = null;
+	public var dad2:Character = null;
+	public var boyfriend2:Character = null;
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
@@ -310,6 +312,12 @@ class PlayState extends MusicBeatState
 		playbackRate = ClientPrefs.getGameplaySetting('songspeed');
 
 		keysArray = ['note_left', 'note_down', 'note_up', 'note_right'];
+		if (SONG.mania == 1) keysArray = ['note_6k_0', 'note_6k_1', 'note_6k_2', 'note_6k_3', 'note_6k_4', 'note_6k_5'];
+		else if (SONG.mania == 2) keysArray = ['note_9k_0', 'note_9k_1', 'note_9k_2', 'note_9k_3', 'note_9k_4', 'note_9k_5', 'note_9k_6', 'note_9k_7', 'note_9k_8'];
+
+		totalColumns = keysArray.length;
+		strumsBlocked = [];
+		for (i in 0...totalColumns) strumsBlocked.push(false);
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
@@ -423,9 +431,25 @@ class PlayState extends MusicBeatState
 		startCharacterPos(dad, true);
 		dadGroup.add(dad);
 
+		if (SONG.player4 != null && SONG.player4.length > 0)
+		{
+			dad2 = new Character(0, 0, SONG.player4);
+			startCharacterPos(dad2, true);
+			dad2.x -= 200; // Offset for 2v1/2v2
+			dadGroup.add(dad2);
+		}
+
 		boyfriend = new Character(0, 0, SONG.player1, true);
 		startCharacterPos(boyfriend);
 		boyfriendGroup.add(boyfriend);
+
+		if (SONG.player3 != null && SONG.player3.length > 0)
+		{
+			boyfriend2 = new Character(0, 0, SONG.player3, true);
+			startCharacterPos(boyfriend2);
+			boyfriend2.x += 200; // Offset for 1v2/2v2
+			boyfriendGroup.add(boyfriend2);
+		}
 
 		if (stageData.objects != null && stageData.objects.length > 0)
 		{
@@ -1434,6 +1458,10 @@ class PlayState extends MusicBeatState
 
 	private function generateSong():Void
 	{
+		totalColumns = 4;
+		if (SONG.mania == 1) totalColumns = 6;
+		else if (SONG.mania == 2) totalColumns = 9;
+
 		// FlxG.log.add(ChartParser.parse());
 		songSpeed = PlayState.SONG.speed;
 		songSpeedType = ClientPrefs.getGameplaySetting('scrolltype');
@@ -1607,7 +1635,7 @@ class PlayState extends MusicBeatState
 						else if (ClientPrefs.data.middleScroll)
 						{
 							sustainNote.x += 310;
-							if (noteColumn > 1) // Up and Right
+							if (noteColumn >= Math.ceil(totalColumns / 2)) // Up and Right
 								sustainNote.x += FlxG.width / 2 + 25;
 						}
 					}
@@ -1620,7 +1648,7 @@ class PlayState extends MusicBeatState
 				else if (ClientPrefs.data.middleScroll)
 				{
 					swagNote.x += 310;
-					if (noteColumn > 1) // Up and Right
+					if (noteColumn >= Math.ceil(totalColumns / 2)) // Up and Right
 					{
 						swagNote.x += FlxG.width / 2 + 25;
 					}
@@ -1731,11 +1759,16 @@ class PlayState extends MusicBeatState
 		final isHitboxArrowMode = ClientPrefs.data.extraHints == "ARROWS" && ClientPrefs.data.middleScroll;
 		if(isHitboxArrowMode && ClientPrefs.data.downScroll) playerStrumLineY -= 50;
 		Note.swagWidth = 160 * (isHitboxArrowMode ? 0.8 : 0.7);
+		if (totalColumns == 6) Note.swagWidth *= 0.85;
+		else if (totalColumns == 9) Note.swagWidth *= 0.6;
 		#else
 		final isHitboxArrowMode = false;
+		Note.swagWidth = 160 * 0.7;
+		if (totalColumns == 6) Note.swagWidth *= 0.85;
+		else if (totalColumns == 9) Note.swagWidth *= 0.6;
 		#end
 
-		for (i in 0...4)
+		for (i in 0...totalColumns)
 		{
 		// FlxG.log.add(i);
 		var targetAlpha:Float = 1;
@@ -1767,7 +1800,7 @@ class PlayState extends MusicBeatState
 				babyArrow.scale.set(playerArrowScale,playerArrowScale);
 				babyArrow.updateHitbox();
 				babyArrow.x -= 25;
-				if (i > 1)
+				if (i >= Math.ceil(totalColumns / 2))
 					babyArrow.x += ARROW_SPREAD;
 				else 
 					babyArrow.x -= ARROW_SPREAD;
@@ -1782,7 +1815,7 @@ class PlayState extends MusicBeatState
 			if (ClientPrefs.data.middleScroll)
 			{
 				babyArrow.x += 310;
-				if (i > 1)
+				if (i >= Math.ceil(totalColumns / 2))
 				{ // Up and Right
 					babyArrow.x = FlxG.width - 310 - 168 - 100;
 					if(isHitboxArrowMode)
@@ -2076,6 +2109,7 @@ override public function update(elapsed:Float)
 				if (startedCountdown)
 				{
 					var fakeCrochet:Float = (60 / SONG.bpm) * 1000;
+					var speedRate:Float = songSpeed / playbackRate;
 					notes.forEachAlive(function(daNote:Note)
 					{
 						var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
@@ -2083,7 +2117,7 @@ override public function update(elapsed:Float)
 							strumGroup = opponentStrums;
 
 						var strum:StrumNote = strumGroup.members[daNote.noteData];
-						daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
+						daNote.followStrumNote(strum, fakeCrochet, speedRate);
 
 						if (daNote.mustPress)
 						{
@@ -3608,18 +3642,23 @@ function noteMissCommon(direction:Int, note:Note = null)
 	RecalculateRating(true);
 
 	// play character anims
-	var char:Character = boyfriend;
+	var characters:Array<Character> = [boyfriend, boyfriend2];
 	if ((note != null && note.gfNote) || (SONG.notes[curSection] != null && SONG.notes[curSection].gfSection))
-		char = gf;
+		characters = [gf];
 
-	if (char != null && (note == null || !note.noMissAnimation) && char.hasMissAnimations)
+	var postfix:String = '';
+	if (note != null)
+		postfix = note.animSuffix;
+
+	var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, direction)))] + 'miss' + postfix;
+
+	for (char in characters)
 	{
-		var postfix:String = '';
-		if (note != null)
-			postfix = note.animSuffix;
-
-		var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, direction)))] + 'miss' + postfix;
-		char.playAnim(animToPlay, true);
+		if (char != null && (note == null || !note.noMissAnimation) && char.hasMissAnimations)
+		{
+			char.playAnim(animToPlay, true);
+		}
+	}
 
 		if (char != gf && lastCombo > 5 && gf != null && gf.hasAnimation('sad'))
 		{
@@ -3655,26 +3694,29 @@ function opponentNoteHit(note:Note):Void
 	}
 	else if (!note.noAnimation)
 	{
-		var char:Character = dad;
 		var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, note.noteData)))] + note.animSuffix;
+		var characters:Array<Character> = [dad, dad2];
 		if (note.gfNote)
-			char = gf;
+			characters = [gf];
 
-		if (char != null)
+		for (char in characters)
 		{
-			var canPlay:Bool = true;
-			if (note.isSustainNote)
+			if (char != null)
 			{
-				var holdAnim:String = animToPlay + '-hold';
-				if (char.animation.exists(holdAnim))
-					animToPlay = holdAnim;
-				if (char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop')
-					canPlay = false;
-			}
+				var canPlay:Bool = true;
+				if (note.isSustainNote)
+				{
+					var holdAnim:String = animToPlay + '-hold';
+					if (char.animation.exists(holdAnim))
+						animToPlay = holdAnim;
+					if (char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop')
+						canPlay = false;
+				}
 
-			if (canPlay)
-				char.playAnim(animToPlay, true);
-			char.holdTimer = 0;
+				if (canPlay)
+					char.playAnim(animToPlay, true);
+				char.holdTimer = 0;
+			}
 		}
 	}
 
@@ -3728,37 +3770,40 @@ public function goodNoteHit(note:Note):Void
 		{
 			var animToPlay:String = singAnimations[Std.int(Math.abs(Math.min(singAnimations.length - 1, note.noteData)))] + note.animSuffix;
 
-			var char:Character = boyfriend;
+			var characters:Array<Character> = [boyfriend, boyfriend2];
 			var animCheck:String = 'hey';
 			if (note.gfNote)
 			{
-				char = gf;
+				characters = [gf];
 				animCheck = 'cheer';
 			}
 
-			if (char != null)
+			for (char in characters)
 			{
-				var canPlay:Bool = true;
-				if (note.isSustainNote)
+				if (char != null)
 				{
-					var holdAnim:String = animToPlay + '-hold';
-					if (char.animation.exists(holdAnim))
-						animToPlay = holdAnim;
-					if (char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop')
-						canPlay = false;
-				}
-
-				if (canPlay)
-					char.playAnim(animToPlay, true);
-				char.holdTimer = 0;
-
-				if (note.noteType == 'Hey!')
-				{
-					if (char.hasAnimation(animCheck))
+					var canPlay:Bool = true;
+					if (note.isSustainNote)
 					{
-						char.playAnim(animCheck, true);
-						char.specialAnim = true;
-						char.heyTimer = 0.6;
+						var holdAnim:String = animToPlay + '-hold';
+						if (char.animation.exists(holdAnim))
+							animToPlay = holdAnim;
+						if (char.getAnimationName() == holdAnim || char.getAnimationName() == holdAnim + '-loop')
+							canPlay = false;
+					}
+
+					if (canPlay)
+						char.playAnim(animToPlay, true);
+					char.holdTimer = 0;
+
+					if (note.noteType == 'Hey!')
+					{
+						if (char.hasAnimation(animCheck))
+						{
+							char.playAnim(animCheck, true);
+							char.specialAnim = true;
+							char.heyTimer = 0.6;
+						}
 					}
 				}
 			}

@@ -64,12 +64,24 @@ import states.InitState;
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
 		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
 		[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]];
+		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
+		[0xFFFFD700, 0xFFFFFFFF, 0xFF8B4513], // Yellow
+		[0xFFEE82EE, 0xFFFFFFFF, 0xFF4B0082], // Violet
+		[0xFF333333, 0xFFFFFFFF, 0xFF000000], // Black
+		[0xFFFFFFFF, 0xFF888888, 0xFF444444], // White
+		[0xFFFF8C00, 0xFFFFFFFF, 0xFF8B0000]  // Orange
+	];
 	public var arrowRGBPixel:Array<Array<FlxColor>> = [
 		[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
 		[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
+		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
+		[0xFFFFE000, 0xFFFFFFE0, 0xFF504000], // Yellow
+		[0xFFFF70FF, 0xFFFFE0FF, 0xFF500050], // Violet
+		[0xFF404040, 0xFF808080, 0xFF000000], // Black
+		[0xFFFFFFFF, 0xFFE0E0E0, 0xFF404040], // White
+		[0xFFFFB000, 0xFFFFE0B0, 0xFF602000]  // Orange
+	];
 
 	public var ghostTapping:Bool = true;
 	public var timeBarType:String = 'Time Left';
@@ -125,6 +137,23 @@ class ClientPrefs {
 		'note_left'		=> [A, LEFT],
 		'note_down'		=> [S, DOWN],
 		'note_right'	=> [D, RIGHT],
+
+		'note_6k_0'		=> [S, NONE],
+		'note_6k_1'		=> [D, NONE],
+		'note_6k_2'		=> [F, NONE],
+		'note_6k_3'		=> [J, NONE],
+		'note_6k_4'		=> [K, NONE],
+		'note_6k_5'		=> [L, NONE],
+
+		'note_9k_0'		=> [A, NONE],
+		'note_9k_1'		=> [S, NONE],
+		'note_9k_2'		=> [D, NONE],
+		'note_9k_3'		=> [F, NONE],
+		'note_9k_4'		=> [SPACE, NONE],
+		'note_9k_5'		=> [H, NONE],
+		'note_9k_6'		=> [J, NONE],
+		'note_9k_7'		=> [K, NONE],
+		'note_9k_8'		=> [L, NONE],
 		
 		'ui_up'			=> [W, UP],
 		'ui_left'		=> [A, LEFT],
@@ -154,6 +183,23 @@ class ClientPrefs {
 		'note_left'		=> [DPAD_LEFT, X],
 		'note_down'		=> [DPAD_DOWN, A],
 		'note_right'	=> [DPAD_RIGHT, B],
+
+		'note_6k_0'		=> [DPAD_LEFT, NONE],
+		'note_6k_1'		=> [DPAD_DOWN, NONE],
+		'note_6k_2'		=> [DPAD_RIGHT, NONE],
+		'note_6k_3'		=> [X, NONE],
+		'note_6k_4'		=> [A, NONE],
+		'note_6k_5'		=> [B, NONE],
+
+		'note_9k_0'		=> [DPAD_LEFT, NONE],
+		'note_9k_1'		=> [DPAD_DOWN, NONE],
+		'note_9k_2'		=> [DPAD_RIGHT, NONE],
+		'note_9k_3'		=> [DPAD_UP, NONE],
+		'note_9k_4'		=> [LEFT_STICK_CLICK, NONE],
+		'note_9k_5'		=> [X, NONE],
+		'note_9k_6'		=> [A, NONE],
+		'note_9k_7'		=> [B, NONE],
+		'note_9k_8'		=> [Y, NONE],
 		
 		'ui_up'			=> [DPAD_UP, LEFT_STICK_DIGITAL_UP],
 		'ui_left'		=> [DPAD_LEFT, LEFT_STICK_DIGITAL_LEFT],

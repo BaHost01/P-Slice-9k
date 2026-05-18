@@ -20,8 +20,9 @@ class MasterEditorMenu extends MusicBeatState
 		'Test stickers', 
 		'Menu Character Editor', 
 		'Dialogue Editor', 
-		'Dialogue Portrait Editor',
+		'Dialogue portrait editor',
 		'Player editor',
+		'Cutscene Editor',
 		#if PROFILE_BUILD
 		'Crash the game',
 		'Usermess the game',
@@ -123,6 +124,8 @@ class MasterEditorMenu extends MusicBeatState
 					MusicBeatState.switchState(new StickerTest());
 				case 'Player editor':
 					MusicBeatState.switchState(new CharSelectEditor());
+				case 'Cutscene Editor':
+					LoadingState.loadAndSwitchState(new CutsceneEditorState(), false);
 				#if PROFILE_BUILD
 				case 'Crash the game':{
 					trace("Break the StackOverflow.com");

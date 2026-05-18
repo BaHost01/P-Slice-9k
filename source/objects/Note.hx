@@ -95,7 +95,7 @@ class Note extends FlxSprite
 
 	public static var SUSTAIN_SIZE:Int = 44;
 	public static var swagWidth:Float = 160 * 0.7;
-	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red'];
+	public static var colArray:Array<String> = ['purple', 'blue', 'green', 'red', 'yellow', 'violet', 'black', 'white', 'orange'];
 	public static var defaultNoteSkin(default, never):String = 'noteSkins/NOTE_assets';
 
 	public var noteSplashData:NoteSplashData = {
@@ -525,29 +525,28 @@ class Note extends FlxSprite
 		distance = (0.45 * (Conductor.songPosition - strumTime) * songSpeed * multSpeed);
 		if (!myStrum.downScroll) distance *= -1;
 
-		var angleDir = strumDirection * Math.PI / 180;
 		if (copyAngle)
 			angle = strumDirection - 90 + strumAngle + offsetAngle;
 
 		if(copyAlpha)
 			alpha = strumAlpha * multAlpha;
 
-		if(copyX)
-			x = strumX + offsetX + Math.cos(angleDir) * distance;
-
-		if(copyY)
+		if(copyX || copyY)
 		{
-			y = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
-			if(myStrum.downScroll && isSustainNote)
+			var angleDir = strumDirection * Math.PI / 180;
+			if(copyX) x = strumX + offsetX + Math.cos(angleDir) * distance;
+			if(copyY)
 			{
-				if(PlayState.isPixelStage)
+				y = strumY + offsetY + correctionOffset + Math.sin(angleDir) * distance;
+				if(myStrum.downScroll && isSustainNote)
 				{
-					y -= PlayState.daPixelZoom * 9.5;
+					if(PlayState.isPixelStage) y -= PlayState.daPixelZoom * 9.5;
+					y -= (frameHeight * scale.y) - (Note.swagWidth / 2);
 				}
-				y -= (frameHeight * scale.y) - (Note.swagWidth / 2);
 			}
 		}
-		if(copyScale){
+
+		if(copyScale && (scale.x != strumScale.x || (!isSustainNote && scale.y != strumScale.y))) {
 			scale.x = strumScale.x;
 			if(!isSustainNote) scale.y = strumScale.y;
 			updateHitbox();
@@ -560,7 +559,7 @@ class Note extends FlxSprite
 		if((mustPress || !ignoreNote) && (wasGoodHit || (prevNote.wasGoodHit && !canBeHit)))
 		{
 			var swagRect:FlxRect = clipRect;
-			if(swagRect == null) swagRect = new FlxRect(0, 0, frameWidth, frameHeight);
+			if(swagRect == null) swagRect = FlxRect.get(0, 0, frameWidth, frameHeight);
 
 			if (myStrum.downScroll)
 			{
