@@ -557,6 +557,7 @@
 		"song": "Tutorial",
 		"sections": 0,
 		"needsVoices": true,
+		"mania": 1,
 		"format": "psych_v1_convert",
 		"speed": 1,
 		"bpm": 100

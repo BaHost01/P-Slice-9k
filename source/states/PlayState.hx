@@ -311,9 +311,12 @@ class PlayState extends MusicBeatState
 		PauseSubState.songName = null; // Reset to default
 		playbackRate = ClientPrefs.getGameplaySetting('songspeed');
 
-		keysArray = ['note_left', 'note_down', 'note_up', 'note_right'];
-		if (SONG.mania == 1) keysArray = ['note_6k_0', 'note_6k_1', 'note_6k_2', 'note_6k_3', 'note_6k_4', 'note_6k_5'];
-		else if (SONG.mania == 2) keysArray = ['note_9k_0', 'note_9k_1', 'note_9k_2', 'note_9k_3', 'note_9k_4', 'note_9k_5', 'note_9k_6', 'note_9k_7', 'note_9k_8'];
+		keysArray = switch (SONG.mania)
+		{
+			case 1: [for (i in 0...Song.getManiaColumns(1)) '${Song.getManiaKeyPrefix(1)}$i'];
+			case 2: [for (i in 0...Song.getManiaColumns(2)) '${Song.getManiaKeyPrefix(2)}$i'];
+			default: ['note_left', 'note_down', 'note_up', 'note_right'];
+		};
 
 		totalColumns = keysArray.length;
 		strumsBlocked = [];
@@ -1458,9 +1461,7 @@ class PlayState extends MusicBeatState
 
 	private function generateSong():Void
 	{
-		totalColumns = 4;
-		if (SONG.mania == 1) totalColumns = 6;
-		else if (SONG.mania == 2) totalColumns = 9;
+		totalColumns = Song.getManiaColumns(SONG.mania);
 
 		// FlxG.log.add(ChartParser.parse());
 		songSpeed = PlayState.SONG.speed;

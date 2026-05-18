@@ -49,6 +49,26 @@ typedef SwagSection =
 
 class Song
 {
+	public static inline function getManiaColumns(mania:Int):Int
+	{
+		return switch mania
+		{
+			case 1: 6;
+			case 2: 9;
+			default: 4;
+		};
+	}
+
+	public static inline function getManiaKeyPrefix(mania:Int):String
+	{
+		return switch mania
+		{
+			case 1: 'note_6k_';
+			case 2: 'note_9k_';
+			default: 'note_';
+		};
+	}
+
 	public var song:String;
 	public var notes:Array<SwagSection>;
 	public var events:Array<Dynamic>;

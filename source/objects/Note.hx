@@ -178,7 +178,7 @@ class Note extends FlxSprite
 		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData];
 		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData];
 
-		if (arr != null && noteData > -1 && noteData <= arr.length)
+		if (arr != null && noteData > -1 && noteData < arr.length)
 		{
 			rgbShader.r = arr[0];
 			rgbShader.g = arr[1];
@@ -335,7 +335,7 @@ class Note extends FlxSprite
 			var newRGB:RGBPalette = new RGBPalette();
 			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
 			
-			if (arr != null && noteData > -1 && noteData <= arr.length)
+			if (arr != null && noteData > -1 && noteData < arr.length)
 			{
 				newRGB.r = arr[0];
 				newRGB.g = arr[1];

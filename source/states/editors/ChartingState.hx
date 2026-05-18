@@ -127,6 +127,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		0xFF3F3F3F,
 	];
 	var curQuant(default, set):Int = 16;
+	inline function maniaColumns():Int
+		return Song.getManiaColumns(PlayState.SONG.mania);
+
 	function set_curQuant(v:Int)
 	{
 		curQuant = v;
@@ -712,9 +715,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		player4DropDown.selectedLabel = PlayState.SONG.player4 ?? 'None';
 		maniaStepper.value = PlayState.SONG.mania;
 		
-		GRID_COLUMNS_PER_PLAYER = 4;
-		if (PlayState.SONG.mania == 1) GRID_COLUMNS_PER_PLAYER = 6;
-		else if (PlayState.SONG.mania == 2) GRID_COLUMNS_PER_PLAYER = 9;
+		GRID_COLUMNS_PER_PLAYER = maniaColumns();
 		repositionHeads();
 		stageDropDown.selectedLabel = PlayState.SONG.stage;
 		StageData.loadDirectory(PlayState.SONG);
@@ -2389,11 +2390,8 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		swagEvent.active = false;
 
 		var secNum:Int = 0;
-		for (i in 1...cachedSectionTimes.length)
-		{
-			if(cachedSectionTimes[i] > daStrumTime) break;
+		while (secNum + 1 < cachedSectionTimes.length && cachedSectionTimes[secNum + 1] <= daStrumTime)
 			secNum++;
-		}
 		positionNoteYOnTime(swagEvent, secNum);
 		return swagEvent;
 	}
@@ -3708,9 +3706,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		maniaStepper.onChange = function(old, cur) {
 			PlayState.SONG.mania = Std.int(maniaStepper.value);
 			updateJsonData();
-			GRID_COLUMNS_PER_PLAYER = 4;
-			if (PlayState.SONG.mania == 1) GRID_COLUMNS_PER_PLAYER = 6;
-			else if (PlayState.SONG.mania == 2) GRID_COLUMNS_PER_PLAYER = 9;
+			GRID_COLUMNS_PER_PLAYER = maniaColumns();
 			createGrids();
 			generateEditorStrums();
 			repositionHeads();
