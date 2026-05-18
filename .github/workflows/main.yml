@@ -105,7 +105,7 @@ jobs:
 
   Release:
     name: Create Release
-    needs: [BuildDesktop, BuildMobile, BuildMacos]
+    needs: [BuildDesktop]
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
