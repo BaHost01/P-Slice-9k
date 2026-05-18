@@ -115,7 +115,14 @@ jobs:
           path: artifacts
       - name: Zip Artifacts
         run: |
-          cd artifacts
+          mkdir release_build
+          # Copy only the necessary files: PSliceEngine.exe (or binary), and assets folders.
+          # Adjust the patterns based on your project output structure.
+          cp artifacts/P-Slice.1.0.windows/PSliceEngine.exe release_build/ || true
+          cp -r artifacts/P-Slice.1.0.windows/* release_build/ || true
+          # Remove DLLs if you really want to, but keep in mind the game likely needs them.
+          # If you want to keep them, just remove the 'rm' line.
+          cd release_build
           zip -r ../build.zip .
       - name: Release
         uses: softprops/action-gh-release@v2
