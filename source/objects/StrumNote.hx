@@ -86,7 +86,7 @@ class StrumNote extends FlxSprite
 				animation.add(col, [frame]);
 			}
 			
-			var frame:Int = Math.abs(noteData) % 4;
+			var frame:Int = Std.int(Math.abs(noteData) % 4);
 			animation.add('static', [frame]);
 			animation.add('pressed', [4 + frame, 8 + frame], 12, false);
 			animation.add('confirm', [12 + frame, 16 + frame], 24, false);
@@ -117,7 +117,7 @@ class StrumNote extends FlxSprite
 			setGraphicSize(Std.int(width * 0.7));
 
 			var anims:Array<String> = ['left', 'down', 'up', 'right'];
-			var dir:String = anims[Math.abs(noteData) % 4];
+			var dir:String = anims[Std.int(Math.abs(noteData) % 4)];
 			
 			animation.addByPrefix('static', 'arrow' + dir.toUpperCase());
 			animation.addByPrefix('pressed', dir + ' press', 24, false);

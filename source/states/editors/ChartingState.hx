@@ -3705,7 +3705,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		});
 
 		maniaStepper = new PsychUINumericStepper(objX + 140, objY + 80, 1, 0, 0, 2, 0);
-		maniaStepper.onChange = function() {
+		maniaStepper.onChange = function(old, cur) {
 			PlayState.SONG.mania = Std.int(maniaStepper.value);
 			updateJsonData();
 			GRID_COLUMNS_PER_PLAYER = 4;

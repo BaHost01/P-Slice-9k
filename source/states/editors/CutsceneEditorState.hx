@@ -2,20 +2,7 @@ package states.editors;
 
 import backend.StageData;
 import objects.Character;
-import objects.Alphabet;
-import flixel.addons.ui.FlxInputText;
-import flixel.addons.ui.FlxUI;
-import flixel.addons.ui.FlxUITabMenu;
-import flixel.ui.FlxButton;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.util.FlxColor;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.text.FlxText;
 import haxe.Json;
-import openfl.events.Event;
-import openfl.events.IOErrorEvent;
-import openfl.net.FileReference;
 
 typedef CutsceneData = {
 	var stage:String;
@@ -47,7 +34,7 @@ class CutsceneEditorState extends MusicBeatState
 	
 	var camEditor:FlxCamera;
 	var camHUD:FlxCamera;
-	var UI_box:FlxUITabMenu;
+	var UI_box:PsychUIBox;
 	
 	var curTime:Float = 0;
 	var timelineText:FlxText;
@@ -95,14 +82,7 @@ class CutsceneEditorState extends MusicBeatState
 	
 	function addEditorUI()
 	{
-		var tabs = [
-			{name: "Characters", label: 'Characters'},
-			{name: "Timeline", label: 'Timeline'}
-		];
-		UI_box = new FlxUITabMenu(null, tabs, true);
-		UI_box.resize(300, 400);
-		UI_box.x = FlxG.width - UI_box.width - 20;
-		UI_box.y = 20;
+		UI_box = new PsychUIBox(FlxG.width - 320, 20, 300, 400, ["Characters", "Timeline"]);
 		UI_box.cameras = [camHUD];
 		add(UI_box);
 		
@@ -115,19 +95,16 @@ class CutsceneEditorState extends MusicBeatState
 	
 	function addCharactersTab()
 	{
-		var tab_group = new FlxUI(null, UI_box);
-		tab_group.name = "Characters";
+		var tab = UI_box.getTab("Characters");
 		
-		var charInput = new FlxInputText(20, 30, 100, "bf", 8);
-		var addBtn = new FlxButton(20, 60, "Add Character", function() {
+		var charInput = new PsychUIInputText(20, 30, 100, "bf", 8);
+		var addBtn = new PsychUIButton(20, 60, "Add Character", function() {
 			spawnCharacter("char_" + cutsceneData.characters.length, charInput.text, 0, 0, false);
 		});
 		
-		tab_group.add(new FlxText(20, 10, 0, "Character Name:"));
-		tab_group.add(charInput);
-		tab_group.add(addBtn);
-		
-		UI_box.addGroup(tab_group);
+		tab.menu.add(new FlxText(20, 10, 0, "Character Name:"));
+		tab.menu.add(charInput);
+		tab.menu.add(addBtn);
 	}
 	
 	function spawnCharacter(name:String, char:String, x:Float, y:Float, isPlayer:Bool)
