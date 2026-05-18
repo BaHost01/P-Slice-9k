@@ -3660,12 +3660,12 @@ function noteMissCommon(direction:Int, note:Note = null)
 		}
 	}
 
-		if (char != gf && lastCombo > 5 && gf != null && gf.hasAnimation('sad'))
-		{
-			gf.playAnim('sad');
-			gf.specialAnim = true;
-		}
+	if (!characters.contains(gf) && lastCombo > 5 && gf != null && gf.hasAnimation('sad'))
+	{
+		gf.playAnim('sad');
+		gf.specialAnim = true;
 	}
+
 	vocals.volume = 0;
 }
 
