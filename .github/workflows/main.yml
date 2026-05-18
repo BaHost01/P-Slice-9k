@@ -102,3 +102,23 @@ jobs:
       cacheLibrariesPath: ${{ matrix.cacheLibrariesPath }}
       artifactPath: ${{ matrix.artifactPath }}
       cachePath: ${{matrix.cachePath}}
+
+  Release:
+    name: Create Release
+    needs: [BuildDesktop, BuildMobile, BuildMacos]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@main
+        with:
+          path: artifacts
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          tag_name: latest
+          name: Latest Build
+          body: Automated build from master-dev branch.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
