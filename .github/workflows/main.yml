@@ -113,10 +113,14 @@ jobs:
         uses: actions/download-artifact@main
         with:
           path: artifacts
+      - name: Zip Artifacts
+        run: |
+          cd artifacts
+          zip -r ../build.zip .
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*
+          files: build.zip
           tag_name: latest
           name: Latest Build
           body: Automated build from master-dev branch.
